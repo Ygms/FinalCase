@@ -17,6 +17,9 @@ class _HomePageState extends State<HomePage>
   late Animation<double> _animation;
   int _currentIndex = 1;
   String _userName = "";
+  bool? _value1 = false;
+  bool? _value2 = false;
+  bool? _value3 = false;
 
   @override
   void initState() {
@@ -35,15 +38,47 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      Center(child: Text("Görevler", style: TextStyle(fontSize: 24))), //bunlar
       Center(
         child: ListView(
-          padding: EdgeInsets.only(top: 0),
           scrollDirection: Axis.vertical,
-          children: [Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [_speechText(), _mainCharImg(_animation), _startButton()],
-          ),]
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _speechText(
+                  _userName.isEmpty
+                      ? "Hey, senin için günlük plan hazırladım. \n Her gün tamamla, \n her gün kahraman ol!"
+                      : "Hey $_userName, senin için günlük plan hazırladım. \n Her gün tamamla, \n her gün kahraman ol!",
+                  150,
+                  300,
+                ),
+                _mainCharImg(_animation, "assets/character/world_joyful.png"),
+
+                _checkList(),
+              ],
+            ),
+          ],
+        ),
+      ), //bunlar
+      Center(
+        child: ListView(
+          scrollDirection: Axis.vertical,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _speechText(
+                  _userName.isEmpty
+                      ? "Merhaba! \n Su Kahramanı olmaya hazır mısın?"
+                      : "Merhaba $_userName! \n Su Kahramanı olmaya hazır mısın?",
+                  100,
+                  300,
+                ),
+                _mainCharImg(_animation, "assets/character/main_char.png"),
+                _startButton(),
+              ],
+            ),
+          ],
         ),
       ),
       Center(
@@ -61,7 +96,125 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Center _mainCharImg(Animation<double> animation) {
+  Column _checkList() {
+    return Column(
+      children: [
+        Row(
+          children: <Widget>[
+            const SizedBox(width: 10),
+            Checkbox(
+              value: _value1,
+              onChanged: (bool? newValue) {
+                setState(() {
+                  _value1 = newValue;
+                });
+              },
+              checkColor: Colors.white,
+              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Color.fromARGB(255, 50, 50, 89);
+                }
+                return Colors.white;
+              }),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Dişimi fırçalarken çeşmeyi kapattım.',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontFamily: "Grandstander",
+                  decoration: _value1 == true
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                  decorationThickness: 5,
+                  decorationColor: Color.fromARGB(255, 50, 50, 89),
+                ),
+                softWrap: true,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: <Widget>[
+            const SizedBox(width: 10),
+            Checkbox(
+              value: _value2,
+              onChanged: (bool? newValue) {
+                setState(() {
+                  _value2 = newValue;
+                });
+              },
+              checkColor: Colors.white,
+              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Color.fromARGB(255, 50, 50, 89);
+                }
+                return Colors.white;
+              }),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Bol su içtim ve hiç dökmedim.',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontFamily: "Grandstander",
+                  decoration: _value2 == true
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                  decorationThickness: 5,
+                  decorationColor: Color.fromARGB(255, 50, 50, 89),
+                ),
+                softWrap: true,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: <Widget>[
+            const SizedBox(width: 10),
+            Checkbox(
+              value: _value3,
+              onChanged: (bool? newValue) {
+                setState(() {
+                  _value3 = newValue;
+                });
+              },
+              checkColor: Colors.white,
+              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Color.fromARGB(255, 50, 50, 89);
+                }
+                return Colors.white;
+              }),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Banyo yaparken iyice temizlendim ve suya dikkat ettim.',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontFamily: "Grandstander",
+                  decoration: _value3 == true
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                  decorationThickness: 5,
+                  decorationColor: Color.fromARGB(255, 50, 50, 89),
+                ),
+                softWrap: true,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 30),
+      ],
+    );
+  }
+
+  Center _mainCharImg(Animation<double> animation, String path) {
     return Center(
       child: AnimatedBuilder(
         animation: animation,
@@ -76,7 +229,7 @@ class _HomePageState extends State<HomePage>
           width: 450,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/character/main_char.png"),
+              image: AssetImage(path),
               fit: BoxFit.fitHeight,
             ),
           ),
@@ -89,51 +242,67 @@ class _HomePageState extends State<HomePage>
     return Center(
       child: GestureDetector(
         onTap: () async {
-          if(_userName.isEmpty){ String? name = await showDialog<String>(
-            context: context,
-            builder: (context) {
-              String tempName = "";
-              return AlertDialog(
-                title: Text("Adın Nedir?", style: TextStyle(fontFamily: "Grandstander"),),
-                content: TextField(
-                  onChanged: (value) {
-                    tempName = value;
-                  },
-                  decoration: InputDecoration(hintText: "Damla"),
-                  style: TextStyle(fontFamily: "Grandstander"),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("İptal", style: TextStyle(fontFamily: "Grandstander"),),
+          if (_userName.isEmpty) {
+            String? name = await showDialog<String>(
+              context: context,
+              builder: (context) {
+                String tempName = "";
+                return AlertDialog(
+                  title: Text(
+                    "Adın Nedir?",
+                    style: TextStyle(fontFamily: "Grandstander"),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context, tempName);
+                  content: TextField(
+                    onChanged: (value) {
+                      tempName = value;
                     },
-                    child: Text("Tamam", style: TextStyle(fontFamily: "Grandstander"),),
+                    decoration: InputDecoration(hintText: "Damla"),
+                    style: TextStyle(fontFamily: "Grandstander"),
                   ),
-                ],
-              );
-            },
-          );
-          if(name != null && name.isNotEmpty) {
-            setState(() {
-              _userName = name[0].toUpperCase()+name.substring(1).toLowerCase();
-            });
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "İptal",
+                        style: TextStyle(fontFamily: "Grandstander"),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context, tempName);
+                      },
+                      child: Text(
+                        "Tamam",
+                        style: TextStyle(fontFamily: "Grandstander"),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+            if (name != null && name.isNotEmpty) {
+              setState(() {
+                _userName =
+                    name[0].toUpperCase() + name.substring(1).toLowerCase();
+              });
 
-            Navigator.push(context, 
-            MaterialPageRoute(builder: (context) => StoryPage(userName: _userName)),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StoryPage(userName: _userName),
+                ),
+              );
+            }
+          } else if (_userName.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StoryPage(userName: _userName),
+              ),
             );
           }
-        }
-        else if(_userName.isNotEmpty){
-            Navigator.push(context, 
-            MaterialPageRoute(builder: (context) => StoryPage(userName: _userName)));
-        }
-        
         },
         child: Container(
           padding: EdgeInsets.all(10.0),
@@ -171,21 +340,20 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Center _speechText() {
+  Center _speechText(String txt, double hght, double wdth) {
     return Center(
       child: Container(
         margin: EdgeInsets.only(top: 30),
         padding: EdgeInsets.all(10.0),
-        height: 100,
-        width: 300,
+        height: hght,
+        width: wdth,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
           color: Color.fromARGB(255, 50, 50, 89),
         ),
         child: TypeWriter.text(
-          _userName.isEmpty
-              ? "Merhaba! \n Su Kahramanı olmak ister misin?"
-              : "Merhaba $_userName! \n Su Kahramanı olmak ister misin?",
+          txt,
+          key: ValueKey(txt),
           maintainSize: true,
           textAlign: TextAlign.center,
           style: const TextStyle(
