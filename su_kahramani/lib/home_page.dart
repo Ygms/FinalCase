@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:su_kahramani/story_page.dart';
 import 'package:typewritertext/typewritertext.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,6 +16,7 @@ class _HomePageState extends State<HomePage>
   late AnimationController _controller;
   late Animation<double> _animation;
   int _currentIndex = 1;
+  String _userName = "";
 
   @override
   void initState() {
@@ -34,8 +36,19 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       Center(child: Text("Görevler", style: TextStyle(fontSize: 24))), //bunlar
-      Center(child: Column(children: [_speechText(), _mainCharImg(_animation), _startButton()],),),
-      Center(child: Text("Profil", style: TextStyle(fontSize: 24)),), //düzenlencek
+      Center(
+        child: ListView(
+          padding: EdgeInsets.only(top: 0),
+          scrollDirection: Axis.vertical,
+          children: [Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [_speechText(), _mainCharImg(_animation), _startButton()],
+          ),]
+        ),
+      ),
+      Center(
+        child: Text("Profil", style: TextStyle(fontSize: 24)),
+      ), //düzenlencek
     ];
     return Scaffold(
       extendBody: true,
@@ -74,31 +87,83 @@ class _HomePageState extends State<HomePage>
 
   Center _startButton() {
     return Center(
-      child: Container(
-        padding: EdgeInsets.all(10.0),
-        height: 50,
-        width: 180,
-        decoration: BoxDecoration(
-          border: Border.all(color: Color.fromARGB(255, 50, 50, 89), width: 2),
-          borderRadius: BorderRadius.circular(10.0),
+      child: GestureDetector(
+        onTap: () async {
+          if(_userName.isEmpty){ String? name = await showDialog<String>(
+            context: context,
+            builder: (context) {
+              String tempName = "";
+              return AlertDialog(
+                title: Text("Adın Nedir?", style: TextStyle(fontFamily: "Grandstander"),),
+                content: TextField(
+                  onChanged: (value) {
+                    tempName = value;
+                  },
+                  decoration: InputDecoration(hintText: "Damla"),
+                  style: TextStyle(fontFamily: "Grandstander"),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("İptal", style: TextStyle(fontFamily: "Grandstander"),),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, tempName);
+                    },
+                    child: Text("Tamam", style: TextStyle(fontFamily: "Grandstander"),),
+                  ),
+                ],
+              );
+            },
+          );
+          if(name != null && name.isNotEmpty) {
+            setState(() {
+              _userName = name[0].toUpperCase()+name.substring(1).toLowerCase();
+            });
 
-          //color: Color.fromARGB(255, 50, 50, 89),
-          gradient: RadialGradient(
-            radius: 3.0,
-            colors: [
-              Color.fromARGB(255, 190, 241, 255),
-              Color.fromARGB(255, 0, 162, 206),
-            ],
-          ),
-        ),
-        child: Center(
-          child: Text(
-            "Hikayeye Başla",
-            style: TextStyle(
+            Navigator.push(context, 
+            MaterialPageRoute(builder: (context) => StoryPage(userName: _userName)),
+            );
+          }
+        }
+        else if(_userName.isNotEmpty){
+            Navigator.push(context, 
+            MaterialPageRoute(builder: (context) => StoryPage(userName: _userName)));
+        }
+        
+        },
+        child: Container(
+          padding: EdgeInsets.all(10.0),
+          height: 50,
+          width: 180,
+          decoration: BoxDecoration(
+            border: Border.all(
               color: Color.fromARGB(255, 50, 50, 89),
-              fontFamily: "Grandstander",
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(10.0),
+
+            //color: Color.fromARGB(255, 50, 50, 89),
+            gradient: RadialGradient(
+              radius: 3.0,
+              colors: [
+                Color.fromARGB(255, 190, 241, 255),
+                Color.fromARGB(255, 0, 162, 206),
+              ],
+            ),
+          ),
+          child: Center(
+            child: Text(
+              "Hikayeye Başla",
+              style: TextStyle(
+                color: Color.fromARGB(255, 50, 50, 89),
+                fontFamily: "Grandstander",
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -118,7 +183,9 @@ class _HomePageState extends State<HomePage>
           color: Color.fromARGB(255, 50, 50, 89),
         ),
         child: TypeWriter.text(
-          "Merhaba, <kullanıcı adı>! \n Su Kahramanı olmak ister misin?",
+          _userName.isEmpty
+              ? "Merhaba! \n Su Kahramanı olmak ister misin?"
+              : "Merhaba $_userName! \n Su Kahramanı olmak ister misin?",
           maintainSize: true,
           textAlign: TextAlign.center,
           style: const TextStyle(
