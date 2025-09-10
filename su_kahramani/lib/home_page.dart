@@ -14,22 +14,32 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      backgroundColor: Color.fromARGB(255, 172, 226, 255),
+      backgroundColor: Color.fromARGB(255, 224, 244, 255),
+
+
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 0, 141, 218),
+        backgroundColor: Color.fromARGB(255, 135, 196, 255),
+        title: Center(
+          child: Text("Su kahramanı", style: TextStyle(
+            fontSize: 30,
+            color: Colors.white
+          )),
+        ),
       ),
+
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
           iconTheme: IconThemeData(color: Colors.white)
         ),
         child: CurvedNavigationBar(
           animationCurve: Easing.standardDecelerate,
+          buttonBackgroundColor: Color.fromARGB(255, 57, 167, 255),
           animationDuration: Duration(milliseconds: 400),
-          backgroundColor: Color.fromARGB(255, 172, 226, 255),
-          color: Color.fromARGB(255, 0, 141, 218),
+          backgroundColor: Color.fromARGB(255, 224, 244, 255),
+          color: Color.fromARGB(255, 135, 196, 255),
           items: [
-            Icon(Icons.check_box, size: 30,),
-            Icon(Icons.book, size: 30,),
+            Icon(Icons.check_box, size: 30),
+            SvgPicture.asset('assets/drop.svg', width: 35, height: 35),
             Icon(Icons.account_circle, size: 30,),
           ],
         ),
