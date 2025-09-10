@@ -16,7 +16,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       extendBody: true,
       backgroundColor: Color.fromARGB(255, 224, 244, 255),
-
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 138, 205, 215),
         title: Center(
@@ -36,6 +35,7 @@ class _HomePageState extends State<HomePage> {
             child: Text(
               "Su Kahramanı",
               style: TextStyle(
+                fontFamily: "Grandstander",
                 fontSize: 30,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                   "Merhaba, <kullanıcı adı>! \n Su Kahramanı olmak ister misin?",
                   maintainSize: true,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 20.0, color: Colors.white),
+                  style: const TextStyle(fontSize: 20.0, fontFamily: "Grandstander", color: Colors.white),
                   duration: const Duration(milliseconds: 50),
                 ),
               ),
@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                 padding: EdgeInsets.all(10.0),
                 height: 50,
-                width: 170,
+                width: 180,
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: Color.fromARGB(255, 50, 50, 89),
@@ -106,6 +106,7 @@ class _HomePageState extends State<HomePage> {
                     "Hikayeye Başla",
                     style: TextStyle(
                       color: Color.fromARGB(255, 50, 50, 89),
+                      fontFamily: "Grandstander",
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
