@@ -14,6 +14,7 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  int _currentIndex = 1;
 
   @override
   void initState() {
@@ -30,23 +31,18 @@ class _HomePageState extends State<HomePage>
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      Center(child: Text("Görevler", style: TextStyle(fontSize: 24))), //bunlar
+      Center(child: Column(children: [_speechText(), _mainCharImg(_animation), _startButton()],),),
+      Center(child: Text("Profil", style: TextStyle(fontSize: 24)),), //düzenlencek
+    ];
     return Scaffold(
       extendBody: true,
       backgroundColor: Color.fromARGB(255, 224, 244, 255),
       appBar: _appBar(),
 
-      body: Center(
-        child: Column(
-          children: [_speechText(), _mainCharImg(_animation), _startButton()],
-        ),
-      ),
+      body: pages[_currentIndex],
 
       bottomNavigationBar: _navigationBar(context),
     );
@@ -142,6 +138,7 @@ class _HomePageState extends State<HomePage>
         context,
       ).copyWith(iconTheme: IconThemeData(color: Colors.white)),
       child: CurvedNavigationBar(
+        index: _currentIndex,
         animationCurve: Easing.standardDecelerate,
         buttonBackgroundColor: Color.fromARGB(255, 0, 162, 206),
         animationDuration: Duration(milliseconds: 400),
@@ -152,6 +149,11 @@ class _HomePageState extends State<HomePage>
           SvgPicture.asset('assets/drop.svg', width: 35, height: 35),
           Icon(Icons.account_circle, size: 30),
         ],
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }
@@ -185,5 +187,11 @@ class _HomePageState extends State<HomePage>
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
