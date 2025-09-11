@@ -2,7 +2,6 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:su_kahramani/story_levels/story_brush.dart';
-import 'package:su_kahramani/story_levels/story_flower.dart';
 import 'package:typewritertext/typewritertext.dart';
 
 class HomePage extends StatefulWidget {
