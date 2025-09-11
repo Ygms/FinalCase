@@ -1,7 +1,8 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:su_kahramani/story_page.dart';
+import 'package:su_kahramani/story_levels/story_brush.dart';
+import 'package:su_kahramani/story_levels/story_flower.dart';
 import 'package:typewritertext/typewritertext.dart';
 
 class HomePage extends StatefulWidget {
@@ -59,7 +60,7 @@ class _HomePageState extends State<HomePage>
             ),
           ],
         ),
-      ), //bunlar
+      ), 
       Center(
         child: ListView(
           scrollDirection: Axis.vertical,
@@ -83,7 +84,7 @@ class _HomePageState extends State<HomePage>
       ),
       Center(
         child: Text("Profil", style: TextStyle(fontSize: 24)),
-      ), //düzenlencek
+      ), 
     ];
     return Scaffold(
       extendBody: true,
@@ -291,7 +292,7 @@ class _HomePageState extends State<HomePage>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StoryPage(userName: _userName),
+                  builder: (context) => StoryBrush(userName: _userName),
                 ),
               );
             }
@@ -299,7 +300,7 @@ class _HomePageState extends State<HomePage>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => StoryPage(userName: _userName),
+                builder: (context) => StoryBrush(userName: _userName),
               ),
             );
           }
