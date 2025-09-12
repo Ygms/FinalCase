@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:su_kahramani/story_levels/happy_end.dart';
 import 'package:su_kahramani/story_levels/transition_page.dart';
-import 'package:su_kahramani/story_levels/story_shower.dart';
 import 'package:typewritertext/typewritertext.dart';
 
 class StoryFlower extends StatelessWidget {
@@ -62,7 +62,7 @@ class StoryFlower extends StatelessWidget {
                         explanation:
                             "$userName çiçekleri suluk ile sular. "
                             "Tıpkı gerçek bir su kahramanı gibi! \n",
-                        nextPageBuilder: (name) => StoryShower(userName: name),
+                        nextPageBuilder: (name) => StoryEnds(userName: name),
                       ),
                     ),
                   );
