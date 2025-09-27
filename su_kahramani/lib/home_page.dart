@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:su_kahramani/story_levels/story_brush.dart';
 import 'package:typewritertext/typewritertext.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:su_kahramani/profile/profile_tab.dart';
 
 class HomePage extends StatefulWidget {
   final String? initialName;
@@ -19,12 +20,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   late Animation<double> _animation;
   int _currentIndex = 1;
   String _userName = "";
+  int _selectedAvatarIndex = 0;
 
   // Yeni: görev listesi
   late List<Task> _tasks;
 
+  final List<Map<String, dynamic>> kAvatars = [
+    {'icon': Icons.water_drop, 'color': Colors.blue, 'name': 'Su Damlası'},
+    {'icon': Icons.eco, 'color': Colors.green, 'name': 'Doğa Dostu'},
+    {'icon': Icons.wb_sunny, 'color': Colors.orange, 'name': 'Güneş'},
+    {'icon': Icons.star, 'color': Colors.purple, 'name': 'Yıldız'},
+    {'icon': Icons.favorite, 'color': Colors.pink, 'name': 'Kalp'},
+    {'icon': Icons.flash_on, 'color': Colors.yellow, 'name': 'Şimşek'},
+  ];
+
   // Tamamlanan görevlerin puanları
   int get totalPoints => _tasks.where((t) => t.done).fold(0, (sum, t) => sum + t.points);
+  int get tasksDoneCount => _tasks.where((t) => t.done).length;
+  int get badgeCount => 0; // Şimdilik 0, rozet sistemi eklenince güncellenir.
+  int get ranking => (totalPoints ~/ 50) + 1; // Örn: her 50 puan = +1 seviye
 
 
 
@@ -210,9 +224,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ],
         ),
       ),
-      Center(
-        child: Text("Profil", style: TextStyle(fontSize: 24)),
+      // 3. SAYFA: Profil sekmesi
+      ProfileTab(
+        userName: _userName,
+        totalPoints: totalPoints,
+        tasksDoneCount: tasksDoneCount,
+        badgeCount: badgeCount,
+        avatar: kAvatars[_selectedAvatarIndex],
+        ranking: ranking,
+        onNameChanged: (newName) async {
+          setState(() { _userName = newName; });
+          await _saveName(newName); // Zaten sende var
+        },
+        onResetToday: _resetAllTasks, // Aşağıda veriyoruz
       ),
+
     ];
     return Scaffold(
       extendBody: true,
@@ -222,6 +248,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       bottomNavigationBar: _navigationBar(context),
     );
   }
+
+  /// Tüm görevleri 'tamamlanmadı' durumuna çeker ve kalıcı kaydeder.
+  /// Profil sekmesindeki "Bugünü Sıfırla" butonu bunu çağırır.
+  void _resetAllTasks() {
+    setState(() {
+      for (final t in _tasks) {
+        t.done = false;
+      }
+    });
+    _saveChecklistStates();
+  }
+
 
   Column _checkList() {
     return Column(
