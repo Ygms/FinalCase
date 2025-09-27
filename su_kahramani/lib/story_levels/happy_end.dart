@@ -1,14 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:su_kahramani/home_page.dart';
 
-class StoryEnds extends StatelessWidget {
+class StoryEnds extends StatefulWidget {
   final String userName;
 
   const StoryEnds({super.key, required this.userName});
 
   @override
+  _StoryEndsState createState() => _StoryEndsState();
+}
+
+class _StoryEndsState extends State<StoryEnds> {
+  final int currentLevel = 4;
+
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.black87),
+          onPressed: () async {
+            Navigator.popUntil(context, (route) => route.isFirst);
+          },
+        ),
+        centerTitle: true,
+        title: Text(
+          "Su Kahramanı Macerası",
+          style: TextStyle(
+            fontFamily: "Grandstander",
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        backgroundColor: Colors.blue.shade100,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -21,7 +51,7 @@ class StoryEnds extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                "Tebrikler $userName. Suyu hiç harcamadın. Gerçek bir su kahramanısın.",
+                "🎉 Tebrikler ${widget.userName}! Bir damla bile su harcamadın. İşte gerçek bir Su Kahramanı! 🌟💧",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
@@ -36,8 +66,7 @@ class StoryEnds extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 32, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text(

@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:su_kahramani/story_levels/happy_end.dart';
 import 'package:su_kahramani/story_levels/story_flower.dart';
 import 'package:su_kahramani/story_levels/transition_page.dart';
 import 'package:typewritertext/typewritertext.dart';
 
-class StoryWash extends StatelessWidget {
+class StoryWash extends StatefulWidget {
   final String userName;
 
   const StoryWash({super.key, required this.userName});
+
+  @override
+  _StoryWashState createState() => _StoryWashState();
+}
+
+class _StoryWashState extends State<StoryWash> {
+  final int currentLevel = 2; // StoryWash seviye 2
+
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +25,9 @@ class StoryWash extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black87),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () async {
+            Navigator.popUntil(context, (route) => route.isFirst); // Ana sayfaya dön
+          },
         ),
         centerTitle: true,
         title: Text(
@@ -29,7 +41,6 @@ class StoryWash extends StatelessWidget {
         ),
         backgroundColor: Colors.blue.shade100,
       ),
-
       body: ListView(
         padding: const EdgeInsets.only(
           bottom: 16.0,
@@ -39,29 +50,27 @@ class StoryWash extends StatelessWidget {
         ),
         children: [
           _storyTeller(
-            "$userName okulda öğle yemeği yer. Elleri kirlendiği için öğretmeni yıkamasını ister. \n\n"
-            "El temizliği oldukça önemli. Bunu nasıl başaracaksın kahraman?",
+            "${widget.userName} okulda öğle yemeğini yedi. 🍎🥪 Eller biraz kirlendi, bu yüzden öğretmeni onları yıkamasını söyledi. 👐✨\n\n"
+                "Temizlik çok önemli, özellikle de sağlıklı kalmak için! 🌟Peki kahraman ${widget.userName}, ellerini nasıl yıkayacak? 🤔",
           ),
-
           const SizedBox(height: 30),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _choiceCard(
                 context,
                 imagePath: "assets/gifs/aralikli.gif",
-                label: "Suyu elini sabunlarken kapat.",
+                label: "Ellerini sabunlarken suyu kapat.",
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransitionPage(
-                        userName: userName,
+                        userName: widget.userName,
                         imagePath: "assets/gifs/clean.gif",
                         explanation:
-                            "$userName elini sabunlarken çeşmeyi kapatır. "
-                            "Ellerin tertemiz ve su harcamadın. İşte gerçek bir kahraman! \n",
+                        "${widget.userName} sabunlarken musluğu kapattı. 🚰✋🧼"
+                            "Eller mis gibi oldu ve hiç su boşa gitmedi. 🌟🏅İşte gerçek bir Su Kahramanı böyle olur! 🎉 \n",
                         nextPageBuilder: (name) => StoryFlower(userName: name),
                       ),
                     ),
@@ -71,18 +80,18 @@ class StoryWash extends StatelessWidget {
               _choiceCard(
                 context,
                 imagePath: "assets/gifs/araliksiz.gif",
-                label: "Suyu hiç kapatma.",
+                label: "Suyu kapatmadan ellerini sabunlamaya devam et.",
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransitionPage(
-                        userName: userName,
+                        userName: widget.userName,
                         imagePath: "assets/gifs/waste.gif",
                         explanation:
-                            "$userName ellerini yıkarken suyu hiç düşünmez. \n"
-                            "Ellerin suda değildi. Sular boşuna aktı gitti. \n"
-                            "Tekrar denemek ister misin?",
+                        "${widget.userName} ellerini yıkarken musluğu açık unuttu. 🚰😯. \n"
+                            "Eller aslında suda değildi ama su boşa akıp gitti. 💦🐟 \n"
+                            "Kahramanlık şansını yeniden denemek ister misin? 🔄🌱",
                         nextPageBuilder: (name) => StoryWash(userName: name),
                       ),
                     ),
@@ -129,11 +138,11 @@ class StoryWash extends StatelessWidget {
   }
 
   Widget _choiceCard(
-    BuildContext context, {
-    required String imagePath,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+      BuildContext context, {
+        required String imagePath,
+        required String label,
+        required VoidCallback onTap,
+      }) {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,

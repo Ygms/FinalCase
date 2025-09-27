@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:su_kahramani/story_levels/happy_end.dart';
 import 'package:su_kahramani/story_levels/transition_page.dart';
 import 'package:typewritertext/typewritertext.dart';
 
-class StoryFlower extends StatelessWidget {
+class StoryFlower extends StatefulWidget {
   final String userName;
 
+
   const StoryFlower({super.key, required this.userName});
+
+  @override
+  _StoryFlowerState createState() => _StoryFlowerState();
+}
+
+class _StoryFlowerState extends State<StoryFlower> {
+  final int currentLevel = 3; // StoryFlower seviye 3
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +26,9 @@ class StoryFlower extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black87),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () async {
+            Navigator.popUntil(context, (route) => route.isFirst); // Ana sayfaya dön
+          },
         ),
         centerTitle: true,
         title: Text(
@@ -29,7 +42,6 @@ class StoryFlower extends StatelessWidget {
         ),
         backgroundColor: Colors.blue.shade100,
       ),
-
       body: ListView(
         padding: const EdgeInsets.only(
           bottom: 16.0,
@@ -39,12 +51,10 @@ class StoryFlower extends StatelessWidget {
         ),
         children: [
           _storyTeller(
-            "$userName okuldan eve gelir. Babası saksıdaki çiçekleri sulamasını ister. \n\n"
-            "Sence sulamak için hangisini seçmelisin $userName?",
+            "${widget.userName} okuldan eve geldi ve babası ona saksıdaki çiçekleri sulamasını söyledi. 🌸💧 \n\n"
+                "Peki ${widget.userName}, çiçekleri sulamak için hangi seçeneği tercih edecek? 🤔",
           ),
-
           const SizedBox(height: 30),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -57,11 +67,11 @@ class StoryFlower extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransitionPage(
-                        userName: userName,
+                        userName: widget.userName,
                         imagePath: "assets/gifs/happy_pot.gif",
                         explanation:
-                            "$userName çiçekleri suluk ile sular. "
-                            "Tıpkı gerçek bir su kahramanı gibi! \n",
+                        "${widget.userName} çiçekleri sulukla özenle suladı. 🌱💧 "
+                            "Tıpkı gerçek bir Su Kahramanı gibi! 🌟 \n",
                         nextPageBuilder: (name) => StoryEnds(userName: name),
                       ),
                     ),
@@ -77,11 +87,11 @@ class StoryFlower extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransitionPage(
-                        userName: userName,
+                        userName: widget.userName,
                         imagePath: "assets/gifs/sad pot.gif",
                         explanation:
-                            "$userName çiçekleri hortum ile sular. \n"
-                            "Çiçekler su içinde yüzüyor! Pek mutlu görünmüyorlar. \n"
+                        "${widget.userName} çiçekleri hortumla suladı. 💦🌸 \n"
+                            "Çiçekler neredeyse suyun içinde yüzüyor! 😬 Pek mutlu görünmüyorlar. \n"
                             "Tekrar denemek ister misin?",
                         nextPageBuilder: (name) => StoryFlower(userName: name),
                       ),
@@ -129,11 +139,11 @@ class StoryFlower extends StatelessWidget {
   }
 
   Widget _choiceCard(
-    BuildContext context, {
-    required String imagePath,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+      BuildContext context, {
+        required String imagePath,
+        required String label,
+        required VoidCallback onTap,
+      }) {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,

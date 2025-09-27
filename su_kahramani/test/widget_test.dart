@@ -1,30 +1,36 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:su_kahramani/main.dart';
+import 'package:su_kahramani/home_page.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('HomePage loads with initial name and navigates to story', (WidgetTester tester) async {
+    // Build our app with initial values and trigger a frame.
+    await tester.pumpWidget(MyApp(initialName: null));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that the app starts with the initial screen (e.g., the start button).
+    expect(find.text('Merhaba! \n Su Kahramanı olmaya hazır mısın?'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Simulate tapping the "Hikayeye Başla" button when no name is entered.
+    await tester.tap(find.text('Hikayeye Başla'));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that the name dialog appears.
+    expect(find.text('Adın Nedir?'), findsOneWidget);
+
+    // Enter a name and submit.
+    await tester.enterText(find.byType(TextField), 'Damla');
+    await tester.tap(find.text('Tamam'));
+    await tester.pumpAndSettle();
+
+    // Verify that the name is updated in the text.
+    expect(find.text('Merhaba Damla! \n Su Kahramanı olmaya hazır mısın?'), findsOneWidget);
+
+    // Simulate tapping "Hikayeye Başla" again to navigate to the story.
+    await tester.tap(find.text('Hikayeye Başla'));
+    await tester.pumpAndSettle();
+
+    // Verify that the first story page (StoryBrush) is loaded.
+    expect(find.text('Unutma, su kahramanısın. Dişlerini nasıl fırçalarsın Damla?'), findsOneWidget);
   });
 }

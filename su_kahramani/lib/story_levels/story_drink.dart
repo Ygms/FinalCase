@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:su_kahramani/story_levels/story_flower.dart';
 import 'package:su_kahramani/story_levels/story_wash.dart';
 import 'package:su_kahramani/story_levels/transition_page.dart';
 import 'package:typewritertext/typewritertext.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class StoryDrink extends StatelessWidget {
+class StoryDrink extends StatefulWidget {
   final String userName;
 
+
   const StoryDrink({super.key, required this.userName});
+
+  @override
+  _StoryDrinkState createState() => _StoryDrinkState();
+}
+
+class _StoryDrinkState extends State<StoryDrink> {
+  final int currentLevel = 1;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +27,9 @@ class StoryDrink extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black87),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () async {
+            Navigator.popUntil(context, (route) => route.isFirst);
+          },
         ),
         centerTitle: true,
         title: Text(
@@ -29,7 +43,6 @@ class StoryDrink extends StatelessWidget {
         ),
         backgroundColor: Colors.blue.shade100,
       ),
-
       body: ListView(
         padding: const EdgeInsets.only(
           bottom: 16.0,
@@ -39,30 +52,29 @@ class StoryDrink extends StatelessWidget {
         ),
         children: [
           _storyTeller(
-            "$userName gitmeden önce su ister çünkü sağlığı için iyidir. Bunun için musluğun başına gelir. \n\n"
-            "Nasıl su içtiğin oldukça önemli. Bakalım neye karar vereceksin?",
+            "${widget.userName} okula gitmeden önce susadı ve su içmek istedi. Çünkü su, vücudu zinde tutar ve sağlığa çok iyi gelir. 🚰✨ ${widget.userName} musluğun başına geldi. \n\n"
+                "Peki, suyu nasıl içeceksin? Kararın çok önemli! 🌟?",
           ),
-
           const SizedBox(height: 30),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _choiceCard(
                 context,
                 imagePath: "assets/gifs/fill.gif",
-                label: "Bardağı doldur ve hepsini iç.",
+                label: "Bardağını güzelce doldur ve suyunu son damlasına kadar iç. 💧",
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransitionPage(
-                        userName: userName,
+                        userName: widget.userName,
                         imagePath: "assets/character/hug_world.png",
                         explanation:
-                            "$userName bardağı dökmeden içer ve susuzluğu geçer. \n"
-                            "Oldukça sağlıklı ve duyarlısın! Artık okula gidebilirsin.",
+                        "${widget.userName} bardağındaki suyu dökmeden içti ve susuzluğunu giderdi. 💧 \n"
+                            "Ne kadar sağlıklı ve duyarlı bir seçim! 🌟 Artık enerjinle okula gitmeye hazırsın! 🎒",
                         nextPageBuilder: (name) => StoryWash(userName: name),
+
                       ),
                     ),
                   );
@@ -71,18 +83,18 @@ class StoryDrink extends StatelessWidget {
               _choiceCard(
                 context,
                 imagePath: "assets/gifs/pour.gif",
-                label: "Fazla suyu dök",
+                label: "Bardağı doldur ama içmediğin suyu döküp israf et. 😟",
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransitionPage(
-                        userName: userName,
+                        userName: widget.userName,
                         imagePath: "assets/character/cry_main_char.png",
                         explanation:
-                            "$userName istediğinden fazla su alır ve kalanını döker. \n"
-                            "Oysa kalan suyu çiçeklere verebilirdi. Babası da susamış görünüyor. \n"
-                            "Tekrar denemek ister misin?",
+                        "${widget.userName} bardakta fazla su aldı ve kalanını döktü. 💦 \n"
+                            "Oysa kalan suyu çiçeklere verebilirdi, hem doğayı hem de ailesini mutlu edebilirdi! 🌱 \n"
+                            "Hadi, su kahramanı olma şansını tekrar denemek ister misin? 🌟",
                         nextPageBuilder: (name) => StoryDrink(userName: name),
                       ),
                     ),
@@ -129,11 +141,11 @@ class StoryDrink extends StatelessWidget {
   }
 
   Widget _choiceCard(
-    BuildContext context, {
-    required String imagePath,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+      BuildContext context, {
+        required String imagePath,
+        required String label,
+        required VoidCallback onTap,
+      }) {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,

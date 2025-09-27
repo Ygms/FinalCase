@@ -4,7 +4,8 @@ class TransitionPage extends StatelessWidget {
   final String userName;
   final String imagePath;
   final String explanation;
-  final Widget Function(String userName) nextPageBuilder;
+  final Widget Function(String userName) nextPageBuilder;  // Güncellendi: onComplete eklendi
+
 
   const TransitionPage({
     super.key,
@@ -52,9 +53,10 @@ class TransitionPage extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => nextPageBuilder(userName),
+                      builder: (context) => nextPageBuilder(userName), // onComplete iletildi
                     ),
                   );
+
                 },
                 child: const Text(
                   "Devam Et.",

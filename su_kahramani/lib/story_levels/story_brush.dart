@@ -2,11 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:su_kahramani/story_levels/story_drink.dart';
 import 'package:su_kahramani/story_levels/transition_page.dart';
 import 'package:typewritertext/typewritertext.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class StoryBrush extends StatelessWidget {
+class StoryBrush extends StatefulWidget {
   final String userName;
 
   const StoryBrush({super.key, required this.userName});
+
+  @override
+  _StoryBrushState createState() => _StoryBrushState();
+}
+
+class _StoryBrushState extends State<StoryBrush> {
+  final int currentLevel = 0;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +25,9 @@ class StoryBrush extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black87),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () async {
+            Navigator.popUntil(context, (route) => route.isFirst); // Ana sayfaya dön
+          },
         ),
         centerTitle: true,
         title: Text(
@@ -29,7 +41,6 @@ class StoryBrush extends StatelessWidget {
         ),
         backgroundColor: Colors.blue.shade100,
       ),
-
       body: ListView(
         padding: const EdgeInsets.only(
           bottom: 16.0,
@@ -39,12 +50,10 @@ class StoryBrush extends StatelessWidget {
         ),
         children: [
           _storyTeller(
-            "$userName sabah uyanır ve okul için hazırlanır. Okula gitmeden önce dişini fırçalamalı. \n\n"
-            "Unutma, su kahramanısın. Dişlerini nasıl fırçalarsın $userName?",
+            "${widget.userName} sabah uyanır, çantasını hazırlar ve okula gitmeye hazırlanır. Ama önce önemli bir görev var: dişlerini fırçalamak! \n\n"
+                "Unutma, sen bir Su Kahramanısın! Peki ${widget.userName}, dişlerini nasıl fırçalarsın?",
           ),
-
           const SizedBox(height: 30),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -57,12 +66,12 @@ class StoryBrush extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransitionPage(
-                        userName: userName,
+                        userName: widget.userName,
                         imagePath: "assets/character/cry_main_char.png",
                         explanation:
-                            "$userName dişini fırçalarken musluğu açık bırakır. "
+                        "${widget.userName} dişini fırçalarken musluğu açık bırak. "
                             "Foş foşş, bir sürü su boşa aktı! \n"
-                            "Tekrar denemek ister misin",
+                            "Hadi kahramanca bir seçim yap, yeniden dene!",
                         nextPageBuilder: (name) => StoryBrush(userName: name),
                       ),
                     ),
@@ -72,18 +81,19 @@ class StoryBrush extends StatelessWidget {
               _choiceCard(
                 context,
                 imagePath: "assets/gifs/faucet.gif",
-                label: "Dişini fırçalarken kapat.",
+                label: "Dişini fırçalarken suyu kapat.",
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransitionPage(
-                        userName: userName,
+                        userName: widget.userName,
                         imagePath: "assets/gifs/happy_teeth.gif",
                         explanation:
-                            "$userName dişini fırçalarken suya dikkat eder. \n"
-                            "Dişlerin temiz! Kalbin de öyle! \n",
+                        "${widget.userName} dişini fırçalarken suya dikkat eder. \n"
+                            "Dişlerin temiz! Kalbin de öyle!💙 \n",
                         nextPageBuilder: (name) => StoryDrink(userName: name),
+
                       ),
                     ),
                   );
@@ -129,11 +139,11 @@ class StoryBrush extends StatelessWidget {
   }
 
   Widget _choiceCard(
-    BuildContext context, {
-    required String imagePath,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+      BuildContext context, {
+        required String imagePath,
+        required String label,
+        required VoidCallback onTap,
+      }) {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,

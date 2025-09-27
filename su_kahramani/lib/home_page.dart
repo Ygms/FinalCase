@@ -3,23 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:su_kahramani/story_levels/story_brush.dart';
 import 'package:typewritertext/typewritertext.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String? initialName;
+
+  const HomePage({Key? key, this.initialName}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   int _currentIndex = 1;
   String _userName = "";
-  bool? _value1 = false;
-  bool? _value2 = false;
-  bool? _value3 = false;
+
+  // Yeni: görev listesi
+  late List<Task> _tasks;
+
+  // Tamamlanan görevlerin puanları
+  int get totalPoints => _tasks.where((t) => t.done).fold(0, (sum, t) => sum + t.points);
+
+
 
   @override
   void initState() {
@@ -33,7 +40,130 @@ class _HomePageState extends State<HomePage>
       begin: -10,
       end: 10,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    // main.dart'tan gelen initial değerleri kullan
+    _userName = widget.initialName ?? "";
+
+    // Görevleri oluştur (puanları istediğin gibi ayarlayabilirsin)
+    _tasks = [
+      Task(title: 'Dişimi fırçalarken çeşmeyi kapattım.', points: 10),
+      Task(title: 'Bol su içtim ve hiç dökmedim.', points: 8),
+      Task(title: 'Arabayı hortumla değil, kova ile yıkadık.', points: 12),
+      Task(title: 'Banyo yaparken suyu uzun süre boşa akıtmadım.', points: 10),
+      Task(title: 'Kirli kıyafetleri az az değil, biriktirip makinede yıkadık.', points: 10),
+      // İstersen daha fazla ekle
+    ];
+
+    _loadChecklistStates(); // checkbox/görev durumlarını yükle
   }
+
+
+  /// Görevlerin tamamlanma durumlarını kalıcı depodan (SharedPreferences) yükler
+  Future<void> _loadChecklistStates() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Okunan değerleri state'e yaz ve UI'yi yeniden çiz
+    setState(() {
+      for (int i = 0; i < _tasks.length; i++) {
+        // Eğer daha önce kayıt yoksa varsayılan false (işaretli değil)
+        _tasks[i].done = prefs.getBool('task_done_$i') ?? false;
+      }
+    });
+  }
+
+  /// Mevcut görevlerin tamamlanma durumlarını kalıcı depoya yazar.
+  Future<void> _saveChecklistStates() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Her görev için tamamlanma durumunu 'task_done_i' anahtarıyla sakla
+    for (int i = 0; i < _tasks.length; i++) {
+      await prefs.setBool('task_done_$i', _tasks[i].done);
+    }
+  }
+
+
+  // İsim kaydet
+  Future<void> _saveName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('playerName', name);
+    setState(() {
+      _userName = name;
+      print('Kaydedilen isim: $name');
+    });
+  }
+
+  /// Kullanıcı bir checkbox'ı değiştirdiğinde çağrılır.
+  void _toggleTask(int index, bool? value) {
+
+    // UI'yi anında güncelle: null değer gelirse false'a düşür.
+    // totalPoints getter olduğu için otomatik güncellenecek
+    setState(() {
+      _tasks[index].done = value ?? false;
+    });
+
+    // Kalıcı depoya yaz
+    _saveChecklistStates();
+
+  }
+
+
+  /// Skor çubuğu tasarımı
+  Widget _scoreBar() {
+    final int maxDaily = _tasks.fold(0, (sum, t) => sum + t.points);
+    final double ratio = maxDaily == 0 ? 0 : totalPoints / maxDaily;
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Color.fromARGB(255, 50, 50, 89), width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 138, 205, 215),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Puan: $totalPoints',
+                  style: TextStyle(
+                    fontFamily: "Grandstander",
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Günlük hedef: $maxDaily',
+                style: TextStyle(fontFamily: "Grandstander", fontSize: 16, color: Color.fromARGB(255, 50, 50, 89)),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: ratio.clamp(0, 1),
+              minHeight: 10,
+              backgroundColor: Color.fromARGB(255, 224, 244, 255),
+              valueColor: AlwaysStoppedAnimation(Color.fromARGB(255, 0, 162, 206)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,13 +183,12 @@ class _HomePageState extends State<HomePage>
                   300,
                 ),
                 _mainCharImg(_animation, "assets/character/world_joyful.png"),
-
                 _checkList(),
               ],
             ),
           ],
         ),
-      ), 
+      ),
       Center(
         child: ListView(
           scrollDirection: Axis.vertical,
@@ -83,15 +212,13 @@ class _HomePageState extends State<HomePage>
       ),
       Center(
         child: Text("Profil", style: TextStyle(fontSize: 24)),
-      ), 
+      ),
     ];
     return Scaffold(
       extendBody: true,
       backgroundColor: Color.fromARGB(255, 224, 244, 255),
       appBar: _appBar(),
-
       body: pages[_currentIndex],
-
       bottomNavigationBar: _navigationBar(context),
     );
   }
@@ -99,120 +226,71 @@ class _HomePageState extends State<HomePage>
   Column _checkList() {
     return Column(
       children: [
-        Row(
-          children: <Widget>[
-            const SizedBox(width: 10),
-            Checkbox(
-              value: _value1,
-              onChanged: (bool? newValue) {
-                setState(() {
-                  _value1 = newValue;
-                });
-              },
-              checkColor: Colors.white,
-              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return Color.fromARGB(255, 50, 50, 89);
-                }
-                return Colors.white;
-              }),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Dişimi fırçalarken çeşmeyi kapattım.',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontFamily: "Grandstander",
-                  decoration: _value1 == true
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none,
-                  decorationThickness: 5,
-                  decorationColor: Color.fromARGB(255, 50, 50, 89),
+        _scoreBar(), //  Üstte puan çubuğu
+
+        // ✅ Her görev için bir satır oluştur
+        ...List.generate(_tasks.length, (index) {
+          final task = _tasks[index];
+
+          return Padding(
+            padding: const EdgeInsets.only(left: 4, right: 8, bottom: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(width: 6),
+
+                // Görevin tamamlanma durumu (işaretli mi?)
+                Checkbox(
+                  value: task.done,
+                  onChanged: (val) => _toggleTask(index, val), // Tıklandığında state + kalıcı kayıt
+                  checkColor: Colors.white,
+
+                  // Checkbox kutusunun dolgu rengi: seçiliyse lacivert, değilse beyaz
+                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return Color.fromARGB(255, 50, 50, 89);
+                    }
+                    return Colors.white;
+                  }),
                 ),
-                softWrap: true,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Row(
-          children: <Widget>[
-            const SizedBox(width: 10),
-            Checkbox(
-              value: _value2,
-              onChanged: (bool? newValue) {
-                setState(() {
-                  _value2 = newValue;
-                });
-              },
-              checkColor: Colors.white,
-              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return Color.fromARGB(255, 50, 50, 89);
-                }
-                return Colors.white;
-              }),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Bol su içtim ve hiç dökmedim.',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontFamily: "Grandstander",
-                  decoration: _value2 == true
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none,
-                  decorationThickness: 5,
-                  decorationColor: Color.fromARGB(255, 50, 50, 89),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${task.title}\n', // Görev cümlesi
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontFamily: "Grandstander",
+                            color: Colors.black,
+                            decoration: task.done ? TextDecoration.lineThrough : TextDecoration.none,
+                            decorationThickness: 5,
+                            decorationColor: Color.fromARGB(255, 50, 50, 89),
+                          ),
+                        ),
+                        TextSpan(
+                          text: '+${task.points} puan',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: "Grandstander",
+                            color: Color.fromARGB(255, 0, 162, 206),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    softWrap: true, // Metin satır sonuna gelince düzgün taşsın
+                  ),
                 ),
-                softWrap: true,
-              ),
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Row(
-          children: <Widget>[
-            const SizedBox(width: 10),
-            Checkbox(
-              value: _value3,
-              onChanged: (bool? newValue) {
-                setState(() {
-                  _value3 = newValue;
-                });
-              },
-              checkColor: Colors.white,
-              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return Color.fromARGB(255, 50, 50, 89);
-                }
-                return Colors.white;
-              }),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Banyo yaparken iyice temizlendim ve suya dikkat ettim.',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontFamily: "Grandstander",
-                  decoration: _value3 == true
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none,
-                  decorationThickness: 5,
-                  decorationColor: Color.fromARGB(255, 50, 50, 89),
-                ),
-                softWrap: true,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 30),
+          );
+        }),
       ],
     );
   }
+
 
   Center _mainCharImg(Animation<double> animation, String path) {
     return Center(
@@ -284,9 +362,10 @@ class _HomePageState extends State<HomePage>
             );
             if (name != null && name.isNotEmpty) {
               setState(() {
-                _userName =
-                    name[0].toUpperCase() + name.substring(1).toLowerCase();
+                _userName = name[0].toUpperCase() + name.substring(1).toLowerCase();
               });
+
+              await _saveName(_userName);
 
               Navigator.push(
                 context,
@@ -314,8 +393,6 @@ class _HomePageState extends State<HomePage>
               width: 2,
             ),
             borderRadius: BorderRadius.circular(10.0),
-
-            //color: Color.fromARGB(255, 50, 50, 89),
             gradient: RadialGradient(
               radius: 3.0,
               colors: [
@@ -339,6 +416,7 @@ class _HomePageState extends State<HomePage>
       ),
     );
   }
+
 
   Center _speechText(String txt, double hght, double wdth) {
     return Center(
@@ -369,16 +447,14 @@ class _HomePageState extends State<HomePage>
 
   Theme _navigationBar(BuildContext context) {
     return Theme(
-      data: Theme.of(
-        context,
-      ).copyWith(iconTheme: IconThemeData(color: Colors.white)),
+      data: Theme.of(context).copyWith(iconTheme: IconThemeData(color: Colors.white)),
       child: CurvedNavigationBar(
         index: _currentIndex,
         animationCurve: Easing.standardDecelerate,
-        buttonBackgroundColor: Color.fromARGB(255, 0, 162, 206),
         animationDuration: Duration(milliseconds: 400),
         backgroundColor: Color.fromARGB(255, 224, 244, 255),
         color: Color.fromARGB(255, 138, 205, 215),
+        buttonBackgroundColor: Color.fromARGB(255, 0, 162, 206),
         items: [
           Icon(Icons.check_box, size: 30),
           SvgPicture.asset('assets/drop.svg', width: 35, height: 35),
@@ -395,6 +471,26 @@ class _HomePageState extends State<HomePage>
 
   AppBar _appBar() {
     return AppBar(
+      actions: [ // Rozet
+        Container(
+          margin: EdgeInsets.only(right: 12),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+          ),
+          child: Text(
+            '⭐ $totalPoints',
+            style: TextStyle(
+              fontFamily: "Grandstander",
+              color: Color.fromARGB(255, 50, 50, 89),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+
       backgroundColor: Color.fromARGB(255, 138, 205, 215),
       title: Center(
         child: Container(
@@ -429,4 +525,20 @@ class _HomePageState extends State<HomePage>
     _controller.dispose();
     super.dispose();
   }
+}
+
+/// Tek bir kontrol listesi (görev) öğesini temsil eder.
+/// Başlık, puan ve tamamlanma durumunu birlikte tutar.
+class Task {
+  /// Görev metni (çocuklara gösterilen cümle)
+  final String title;
+
+  /// Görev tamamlanınca verilecek puan
+  final int points;
+
+  /// İşaretlenme durumu (varsayılan: tamamlanmadı)
+  bool done;
+
+  /// Yeni bir görev oluşturur. [done] varsayılanı false'tur.
+  Task({required this.title, required this.points, this.done = false});
 }
