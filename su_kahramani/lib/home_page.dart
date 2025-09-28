@@ -60,11 +60,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     // Görevleri oluştur (puanları istediğin gibi ayarlayabilirsin)
     _tasks = [
-      Task(title: 'Dişimi fırçalarken çeşmeyi kapattım.', points: 10),
+      Task(title: 'Dişimi fırçalarken musluğu kapattım.', points: 10),
       Task(title: 'Bol su içtim ve hiç dökmedim.', points: 8),
       Task(title: 'Arabayı hortumla değil, kova ile yıkadık.', points: 12),
       Task(title: 'Banyo yaparken suyu uzun süre boşa akıtmadım.', points: 10),
       Task(title: 'Kirli kıyafetleri az az değil, biriktirip makinede yıkadık.', points: 10),
+      Task(title: 'Çiçekleri yeterli suyla dikkatlice suladım.', points: 10),
+      Task(title: 'Evde su damlatan musluğu aileme söyledim.', points: 8),
+      Task(title: 'Meyveyi yerken kabuğu yıkadığımız suyu çiçeklere verdik.', points: 10),
+
       // İstersen daha fazla ekle
     ];
 
